@@ -149,7 +149,20 @@ Friend MustInherit Class absDataBase
             Throw New DataBaseException(ex)
         End Try
     End Sub
+
+    Public Overridable Sub sbExecute(p_strCommand As String, p_objParameters As Dictionary(Of String, Object)) Implements IDataBase.sbExecute
+        Try
+            Call sbExecute(p_strCommand, CNS_TIMEOUTCOMMAND, p_objParameters)
+        Catch ex As DataBaseException
+            Throw
+        Catch ex As Exception
+            Throw New DataBaseException(ex)
+        End Try
+    End Sub
+
     Public MustOverride Sub sbExecute(p_strCommand As String, ByVal p_intTimeout As Integer, p_objParameters As List(Of clsDataBaseParametes)) Implements IDataBase.sbExecute
+
+    Public MustOverride Sub sbExecute(p_strCommand As String, ByVal p_intTimeout As Integer, p_objParameters As Dictionary(Of String, Object)) Implements IDataBase.sbExecute
 
     Public Function fnExecute(p_strCommand As String) As DataSet Implements IDataBase.fnExecute
         Try
@@ -178,7 +191,20 @@ Friend MustInherit Class absDataBase
             Throw New DataBaseException(ex)
         End Try
     End Function
+
+    Public Overridable Function fnExecute(ByVal p_strCommand As String, p_objParameters As Dictionary(Of String, Object)) As DataSet Implements IDataBase.fnExecute
+        Try
+            Return fnExecute(p_strCommand, CNS_TIMEOUTCOMMAND, p_objParameters)
+        Catch ex As DataBaseException
+            Throw
+        Catch ex As Exception
+            Throw New DataBaseException(ex)
+        End Try
+    End Function
+
     Public MustOverride Function fnExecute(ByVal p_strCommand As String, ByVal p_intTimeout As Integer, p_objParameters As List(Of clsDataBaseParametes)) As DataSet Implements IDataBase.fnExecute
+
+    Public MustOverride Function fnExecute(ByVal p_strCommand As String, ByVal p_intTimeout As Integer, p_objParameters As Dictionary(Of String, Object)) As DataSet Implements IDataBase.fnExecute
 
     Public Overridable Function fnExecute(Of T)(p_strCommand As String) As List(Of T) Implements IDataBase.fnExecute
         Try
@@ -207,6 +233,17 @@ Friend MustInherit Class absDataBase
             Throw New DataBaseException(ex)
         End Try
     End Function
+
+    Public Overridable Function fnExecute(Of T)(p_strCommand As String, p_objParametros As Dictionary(Of String, Object)) As List(Of T) Implements IDataBase.fnExecute
+        Try
+            Return fnExecute(Of T)(p_strCommand, CNS_TIMEOUTCOMMAND, p_objParametros)
+        Catch ex As DataBaseException
+            Throw
+        Catch ex As Exception
+            Throw New DataBaseException(ex)
+        End Try
+    End Function
+
     Public Overridable Function fnExecute(Of T)(p_strCommand As String, ByVal p_intTimeout As Integer, p_objParameters As List(Of clsDataBaseParametes)) As List(Of T) Implements IDataBase.fnExecute
 
         Dim objauxDataSet As DataSet
@@ -223,42 +260,97 @@ Friend MustInherit Class absDataBase
             objauxType = GetType(T)
 
             objAuxProperties = objauxType.GetProperties.ToList
-
-            If objAuxProperties Is Nothing OrElse objAuxProperties.Count = 0 Then
-                Throw New DataBaseException(DataBaseException.enmDataBaseExeptionCode.Erro, "Parameter type (" & objauxType.Name & ") must have some properties.")
-            End If
-
             objauxConstructor = objauxType.GetConstructor({})
-
-            If objauxConstructor Is Nothing Then
-                Throw New DataBaseException(DataBaseException.enmDataBaseExeptionCode.Erro, "Parameter type (" & objauxType.Name & ") must have an empty constructor.")
-            End If
 
             objauxDataSet = fnExecute(p_strCommand, p_intTimeout, p_objParameters)
 
             For Each Register As DataRow In objauxDataSet.Tables(0).Rows
 
-                objAuxReturn = objauxConstructor.Invoke({})
+                If objAuxProperties IsNot Nothing AndAlso objAuxProperties.Count > 0 AndAlso
+                   objauxConstructor IsNot Nothing Then
 
-                For Each Prop As Reflection.PropertyInfo In objAuxProperties
+                    objAuxReturn = objauxConstructor.Invoke({})
+                    For Each Prop As Reflection.PropertyInfo In objAuxProperties
 
-                    Try
-                        Prop.SetValue(objAuxReturn, Register(Prop.Name))
-                    Catch ex As Exception
                         Try
-                            If Register(Prop.Name).GetType Is GetType(Int64) And Prop.PropertyType IsNot GetType(Int64) Then
-                                Prop.SetValue(objAuxReturn, CInt(Register(Prop.Name)))
-                            Else
-                                Prop.SetValue(objAuxReturn, CStr(Register(Prop.Name)))
-                            End If
-                        Catch ex2 As Exception
+                            Prop.SetValue(objAuxReturn, Register(Prop.Name))
+                        Catch ex As Exception
+                            Try
+                                If Register(Prop.Name).GetType Is GetType(Int64) And Prop.PropertyType IsNot GetType(Int64) Then
+                                    Prop.SetValue(objAuxReturn, CInt(Register(Prop.Name)))
+                                Else
+                                    Prop.SetValue(objAuxReturn, CStr(Register(Prop.Name)))
+                                End If
+                            Catch ex2 As Exception
 
+                            End Try
                         End Try
-                    End Try
 
-                Next
+                    Next
+                    objReturn.Add(objAuxReturn)
+                Else
+                    objReturn.Add(Register(0))
+                End If
 
-                objReturn.Add(objAuxReturn)
+            Next
+
+            Return objReturn
+
+        Catch ex As DataBaseException
+            Throw
+        Catch ex As Exception
+            Throw New DataBaseException(ex)
+        End Try
+    End Function
+
+    Public Overridable Function fnExecute(Of T)(p_strCommand As String, ByVal p_intTimeout As Integer, p_objParameters As Dictionary(Of String, Object)) As List(Of T) Implements IDataBase.fnExecute
+
+        Dim objauxDataSet As DataSet
+        Dim objReturn As List(Of T)
+        Dim objAuxProperties As List(Of Reflection.PropertyInfo)
+        Dim objauxType As Type
+        Dim objauxConstructor As Reflection.ConstructorInfo
+        Dim objAuxReturn As T
+
+        Try
+
+            objReturn = New List(Of T)
+
+            objauxType = GetType(T)
+
+            objAuxProperties = objauxType.GetProperties.ToList
+            objauxConstructor = objauxType.GetConstructor({})
+
+            objauxDataSet = fnExecute(p_strCommand, p_intTimeout, p_objParameters)
+
+            For Each Register As DataRow In objauxDataSet.Tables(0).Rows
+
+                If objAuxProperties IsNot Nothing AndAlso objAuxProperties.Count > 0 AndAlso
+                   objauxConstructor IsNot Nothing Then
+
+                    objAuxReturn = objauxConstructor.Invoke({})
+
+                    For Each Prop As Reflection.PropertyInfo In objAuxProperties
+
+                        Try
+                            Prop.SetValue(objAuxReturn, Register(Prop.Name))
+                        Catch ex As Exception
+                            Try
+                                If Register(Prop.Name).GetType Is GetType(Int64) And Prop.PropertyType IsNot GetType(Int64) Then
+                                    Prop.SetValue(objAuxReturn, CInt(Register(Prop.Name)))
+                                Else
+                                    Prop.SetValue(objAuxReturn, CStr(Register(Prop.Name)))
+                                End If
+                            Catch ex2 As Exception
+
+                            End Try
+                        End Try
+
+                    Next
+                    objReturn.Add(objAuxReturn)
+                Else
+                    objReturn.Add(Register(0))
+                End If
 
             Next
 

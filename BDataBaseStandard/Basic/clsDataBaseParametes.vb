@@ -38,23 +38,23 @@ Public Class clsDataBaseParametes
 
 #Region "Declarations"
     Private strKey As String
-    Private strValue As Object
+    Private objValue As Object
 #End Region
 
 #Region "Constructors"
     Public Sub New()
         Try
             strKey = ""
-            strValue = ""
+            objValue = Nothing
         Catch ex As Exception
             Throw
         End Try
     End Sub
 
-    Public Sub New(p_strKey As String, p_strValue As String)
+    Public Sub New(p_strKey As String, p_strValue As Object)
         Try
             strKey = p_strKey
-            strValue = p_strValue
+            objValue = p_strValue
         Catch ex As Exception
             Throw
         End Try
@@ -72,10 +72,10 @@ Public Class clsDataBaseParametes
     End Property
     Public Property Value() As Object
         Get
-            Return strValue
+            Return objValue
         End Get
         Set(ByVal value As Object)
-            strValue = value
+            objValue = value
         End Set
     End Property
 #End Region

@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <RootNamespace>BDataBaseStandard</RootNamespace>
@@ -15,6 +15,10 @@ Multi database interface, Ms-Sql, MySql, PostgreSQL and Sqlite, part of my perso
     <RepositoryType>Git</RepositoryType>
     <PackageTags>Ms-Sql, MySql, PostgreSQL, Sqlite</PackageTags>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <FileVersion>1.1.0.0</FileVersion>
+    <PackageReleaseNotes>Fix on primitive Type Parameters on queries.
+Add Dictionary&lt;String, 0bject&gt; parameters overload.</PackageReleaseNotes>
+    <Version>1.1.0</Version>
   </PropertyGroup>
 
   <ItemGroup>

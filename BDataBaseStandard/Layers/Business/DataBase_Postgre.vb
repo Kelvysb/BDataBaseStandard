@@ -317,6 +317,9 @@ Friend Class DataBase_Postgre
             Throw New DataBaseException(ex)
         End Try
     End Sub
+    Public Overrides Sub sbExecute(p_strCommand As String, p_intTimeout As Integer, p_objParameters As Dictionary(Of String, Object))
+        sbExecute(p_strCommand, p_intTimeout, p_objParameters.Select(Function(item) New clsDataBaseParametes(item.Key, item.Value)).ToList)
+    End Sub
 
     Public Overrides Function fnExecute(ByVal p_strCommand As String, ByVal p_intTimeout As Integer, p_objParameters As List(Of clsDataBaseParametes)) As DataSet Implements IDataBase.fnExecute
 
@@ -418,6 +421,10 @@ Friend Class DataBase_Postgre
         Catch ex As Exception
             Throw New DataBaseException(ex)
         End Try
+    End Function
+
+    Public Overrides Function fnExecute(p_strCommand As String, p_intTimeout As Integer, p_objParameters As Dictionary(Of String, Object)) As DataSet
+        Return fnExecute(p_strCommand, p_intTimeout, p_objParameters.Select(Function(item) New clsDataBaseParametes(item.Key, item.Value)).ToList)
     End Function
 
     Public Overrides Function fnGetConfiguration() As clsConfiguration

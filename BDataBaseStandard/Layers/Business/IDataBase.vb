@@ -48,19 +48,25 @@ Public Interface IDataBase
     Sub sbExecute(p_strCommand As String)
     Sub sbExecute(p_strCommand As String, ByVal p_intTimeout As Integer)
     Sub sbExecute(p_strCommand As String, ByVal p_objParametros As List(Of clsDataBaseParametes))
+    Sub sbExecute(p_strCommand As String, ByVal p_objParametros As Dictionary(Of String, Object))
     Sub sbExecute(p_strCommand As String, ByVal p_intTimeout As Integer, ByVal p_objParametros As List(Of clsDataBaseParametes))
+    Sub sbExecute(p_strCommand As String, ByVal p_intTimeout As Integer, ByVal p_objParametros As Dictionary(Of String, Object))
 
 
     Function fnExecute(p_strCommand As String) As DataSet
     Function fnExecute(ByVal p_strCommand As String, ByVal p_intTimeout As Integer) As DataSet
     Function fnExecute(ByVal p_strCommand As String, ByVal p_intTimeout As Integer, p_objParameters As List(Of clsDataBaseParametes)) As DataSet
+    Function fnExecute(ByVal p_strCommand As String, ByVal p_intTimeout As Integer, p_objParameters As Dictionary(Of String, Object)) As DataSet
     Function fnExecute(ByVal p_strCommand As String, p_objParameters As List(Of clsDataBaseParametes)) As DataSet
+    Function fnExecute(ByVal p_strCommand As String, p_objParameters As Dictionary(Of String, Object)) As DataSet
 
 
     Function fnExecute(Of T)(p_strCommand As String) As List(Of T)
     Function fnExecute(Of T)(ByVal p_strCommand As String, ByVal p_intTimeout As Integer) As List(Of T)
     Function fnExecute(Of T)(ByVal p_strCommand As String, p_objParameters As List(Of clsDataBaseParametes)) As List(Of T)
+    Function fnExecute(Of T)(ByVal p_strCommand As String, p_objParameters As Dictionary(Of String, Object)) As List(Of T)
     Function fnExecute(Of T)(ByVal p_strCommand As String, ByVal p_intTimeout As Integer, p_objParameters As List(Of clsDataBaseParametes)) As List(Of T)
+    Function fnExecute(Of T)(ByVal p_strCommand As String, ByVal p_intTimeout As Integer, p_objParameters As Dictionary(Of String, Object)) As List(Of T)
 
     Function fnGetTableInfo(p_strTable As String) As clsTableInfo
     Function fnGetConfiguration() As clsConfiguration
