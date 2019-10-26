@@ -10,5 +10,5 @@ install:
 
 Nuget:
 ```
-PM> Install-Package BDataBaseStandard -Version 1.0.0
+PM> Install-Package BDataBaseStandard -Version 1.1.0
 ```
